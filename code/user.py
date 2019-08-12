@@ -59,8 +59,9 @@ class UserRegister(Resource):
                         required=True,
                         help='This Field Should not be Blank')
     def post(self):
-
         data=UserRegister.parser.parse_args()
+        if User.find_by_username(data['username']):
+            return {"message":"user name already Exists"},400
         connection=sqlite3.connect('mydata.db')
         cursor=connection.cursor()
         query="INSERT INTO users VALUES (NULL, ?, ?)"
