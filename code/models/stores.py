@@ -7,7 +7,7 @@ class StoreModel(db.Model):
 
     items=db.relationship('ItemModel',lazy='dynamic') #If there are more items then it creates obj to every item, so it should stop sqlAlchemy to do that.
 
-    def __init__(self,name,price):
+    def __init__(self,name):
         self.name=name
 
     def json(self):
