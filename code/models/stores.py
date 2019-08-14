@@ -1,20 +1,17 @@
 from db import db
 
-class ItemModel(db.Model):
-    __tablename__='items'
+class StoreModel(db.Model):
+    __tablename__='stores'
     id=db.Column(db.Integer,primary_key=True)
     name=db.Column(db.String(80))
-    price=db.Column(db.Float(precision=2))
-    store_id=db.Column(db.Integer,db.ForeignKey('stores.id'))
-    store=db.relationship('StoreModel')
 
-    def __init__(self,name,price,store_id):
+    items=db.relationship('ItemModel',lazy='dynamic') #If there are more items then it creates obj to every item, so it should stop sqlAlchemy to do that.
+
+    def __init__(self,name,price):
         self.name=name
-        self.price=price
-        self.store_id=store_id
 
     def json(self):
-        return {"name":self.name,"price":self.price}
+        return {"name":self.name,"items":[item.json() for item in self.items.all()]}
 
     @classmethod
     def find_by_name(cls,name):
@@ -29,4 +26,3 @@ class ItemModel(db.Model):
     def delete_from_db(self):
         db.session.delete(self)
         db.session.commit()
-

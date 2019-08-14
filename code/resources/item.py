@@ -1,11 +1,11 @@
 from flask_restful import Resource, reqparse
 from flask_jwt import jwt_required
-import sqlite3
 from models.item import ItemModel
 
 class Item(Resource):
     parser=reqparse.RequestParser()
     parser.add_argument('price', type=float, required=True, help='This Field Cannot be Left Blank!')
+    parser.add_argument('store_id', type=float, required=True, help='Every Item Requires an Store ID')
 
     @jwt_required()
     def get(self,name):
@@ -20,7 +20,7 @@ class Item(Resource):
             return {'message':'The item with the given name: {} already exists'.format(name)}, 400
 
         data=Item.parser.parse_args()
-        item=ItemModel(name, data['price'])
+        item=ItemModel(name, **data)
         try:
             item.save_to_db()
         except:
@@ -39,19 +39,14 @@ class Item(Resource):
         data=Item.parser.parse_args()
         item=ItemModel.find_by_name(name)
         if item is None:
-            item=ItemModel(name,data['price'])
+            item=ItemModel(name,**data)
         else:
             item.price=data['price']
+            # item.store_id=data['store_id']
         item.save_to_db()
         return item.json()
 
 
 class ItemList(Resource):
     def get(self):
-        connection=sqlite3.connect('mydata.db')
-        cursor=connection.cursor()
-        item=cursor.execute("SELECT * FROM items")
-        items=[]
-        for row in item:
-            items.append({'name':row[0],'price':row[1]})
-        return {"items":items}
+        return {'items':[item.json() for item in ItemModel.query.all]}

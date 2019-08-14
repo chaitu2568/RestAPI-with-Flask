@@ -12,6 +12,12 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS']=False
 app.secret_key='chaitu'
 api=Api(app)
 
+
+#This Decorator makes the Func to Exexute Before any type of Request
+@app.before_first_request
+def create_tables():
+    db.create_all()
+
 jwt=JWT(app,authenticate,identity)
 
 api.add_resource(Item,'/item/<string:name>')
