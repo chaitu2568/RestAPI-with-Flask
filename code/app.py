@@ -2,11 +2,12 @@ from flask import  Flask
 from flask_restful import Api
 from flask_jwt import JWT,jwt_required
 from security import authenticate,identity
-from user import UserRegister
-from item import Item,ItemList
+from resources.user import UserRegister
+from resources.item import Item,ItemList
 
 
 app=Flask(__name__)
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS']=False
 app.secret_key='chaitu'
 api=Api(app)
 
@@ -18,6 +19,8 @@ api.add_resource(UserRegister,'/register')
 
 
 if __name__=='__main__':
+    from db import db
+    db.init_app(app)
     app.run(port=5000,debug=True)
 
 
